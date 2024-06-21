@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+{% block content %}
+  <h3>Task 2: Help</h3>
+  The aim is to write a function that returns a strong password.
+  It must contain 8 characters, a number, upper case letter, special character and not contain the common patterns : ("Qwert", "Pa$$", "Pass").
+  Hopefully you can write the function, or just think of one, that satisfies this.
+  The challenge is how to get it random and not just give out a repeatable pattern.
+  Lets not re-invent the wheel, try the library `random`.
+
+  Still stuck, click <a href="{{url_for('task2_help2')}}">here</a>.
+
+{% endblock %}
