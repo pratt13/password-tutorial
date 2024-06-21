@@ -5,16 +5,20 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import Unauthorized
 
 
-
 current_directory = os.path.dirname(os.path.realpath(__file__))
-parent_directory = os.path  .dirname(current_directory)
+parent_directory = os.path.dirname(current_directory)
 sys.path.append(parent_directory)
 
 
 from task1.constants import MIN_ENTROPY
-from task1.helpers import compute_exact_password_entropy, entropy_estimate, is_valid_password, test_is_valid_password
+from task1.helpers import (
+    compute_exact_password_entropy,
+    entropy_estimate,
+    is_valid_password,
+    test_is_valid_password,
+)
 from task2.helpers import bad_password_generator, pin_number
-from common.exceptions import InvalidPasswordException,InvalidUserForPage
+from common.exceptions import InvalidPasswordException, InvalidUserForPage
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -35,6 +39,7 @@ LEVEL_FOUR = "level_four"
 ADMIN = "admin"
 LEVEL_FIVE = "level_five"
 
+
 @auth.get_user_roles
 def get_user_roles(user):
     """
@@ -45,26 +50,40 @@ def get_user_roles(user):
         return ADMIN
     return user
 
+
 @app.errorhandler(Unauthorized)
 def handle_unauthorized(e):
     return str(e.description), 401
 
+
 def level_one(password):
     try:
-        is_valid_password(password, check_numbers=True, check_special_chars=True, check_uppercase=True)
+        is_valid_password(
+            password, check_numbers=True, check_special_chars=True, check_uppercase=True
+        )
     except InvalidPasswordException as e:
         raise Unauthorized(e)
-    
+
+
 def level_two(password):
     entropy_value = entropy_estimate(password)
     if entropy_value <= MIN_ENTROPY(password):
         raise Unauthorized(f"Entropy {entropy_value} is less than the minimum {MIN_ENTROPY}")
-    
-        
+
+
 def level_three(password):
     entropy_value = compute_exact_password_entropy(password)
     if entropy_value <= MIN_ENTROPY(password):
         raise Unauthorized(f"Entropy {entropy_value} is less than the minimum {MIN_ENTROPY}")
+
+
+def level_four(passwords):
+    if len(passwords) < 100:
+        return "Must pass at least 100 passwords to test", 401
+    if len(passwords) != set(passwords):
+        return "Cannot include repeats in the password creation", 401
+
+
 @auth.verify_password
 def verify_password(username, password):
     """
@@ -116,6 +135,7 @@ def secrets():
 def level1():
     return "Well done for solving level 1!"
 
+
 @app.route("/task1/level_two")
 @auth.login_required(role=LEVEL_TWO)
 def level2():
@@ -132,39 +152,42 @@ def level3():
 @auth.login_required(role=LEVEL_FOUR)
 def level4():
     passwords = request.params["passwords"]
-    if len(passwords) < 100:
-        return "Must pass at least 100 passwords to test", 401
-    if len(passwords) != set(passwords):
-        return "Cannot include repeats in the password creation", 401
+    level_four(passwords)
     return "Well done for solving level4!"
 
 
 @app.route("/task1/level_five")
-@auth.login_required(role=LEVEL_FIVE)
 def level5():
     """
     We should check distribution, but this is simple.
-    Every type of char in the repeats must appear in a position
+    Every type of char in the repeats must appear in a position.
+    Reshape the array, so each element in the array represents the
+     position, for example, the 6th element is a combination of all the
+      characters that appear in the 6th position. is in the
     """
-    num_tries = 100
-    passwords = request.params["passwords"]
+    passwords = request.args.getlist("passwords")
+
+    # Check all passwords are valid
+    for password in passwords:
+        level_one(password)
+        level_two(password)
+        level_three(password)
+    # Check level 4
+    level_four(passwords)
+
+    # Now level 5
+    all_chars_present = set([char for password in passwords for char in password])
+    num_tries = len(passwords)
+
     resorted_passwords = [
         "".join([passwords[i][j] for i in range(num_tries)]) for j in range(len(passwords[0]))
     ]
-    print(passwords)
-    # result = False
-    # try:
-    #     if all(
-    #         is_valid_password(pwd, max_length=num_tries, min_length=num_tries)
-    #         for pwd in resorted_passwords
-    #     ):
-    #         result = True
-    # except ValueError:
-    #     raise Unauthorized(
-    #         f"Some characters never appear in a particular position after {num_tries} tries"
-    #     )
+    for resorted_password in resorted_passwords:
+        if (all_chars_present & set(resorted_password)) != 0:
+            return Unauthorized("Some characters don't appear in all positions"), 401
 
-    # return "Well done for solving level5!"
+    return "Well done for solving level5!"
+
 
 if __name__ == "__main__":
     app.run()
