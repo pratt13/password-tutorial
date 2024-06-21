@@ -1,0 +1,41 @@
+{% extends "index.html" %}
+{% block content %}
+  <h3>Task 1: Help Boyle</h3>
+  The aim is to write a function that returns a list of all possible 3 pin combinations.
+  So the first thing we could do is to use a for loop per character.
+  Then for each guess you could add it to a list using append.
+  
+  <pre>
+    <code>
+      my_list = []
+      for letter2 in ["a", "b", "c"]:
+        for letter1 in ["1", "2", "3"]:
+          my_list.append(letter1+letter2)
+      print(my_list)
+    </code>
+  </pre>
+  <ul>
+    <li>
+      append to list
+    </li>
+    <li>
+      for loops
+    </li>
+    <li>
+      python f-strings
+    </li>
+    <li>
+      The 'range' function in python
+    </li>
+    <li>
+      (Advanced) list comprehension
+    </li>
+    <li>
+      (Advanced) itertools library
+    </li>
+  </ul>
+
+  Remember when starting out print is your friend.
+
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "index.html" %}
+{% block content %}
+  <h2>Entropy</h2>
+  <p>
+    Entropy in general, is a measure of disorder of a system, high entropy means there is less order.
+As such entropy is useful as a measure for hwo good a password is, high entropy would mean it is harder to guess as it is less predictable.
+High entropy is good, low entropy is bad.
+Some useful links are listed below:  
+<ul class="list">       
+  <li>
+    <a href="https://nordvpn.com/blog/what-is-password-entropy/#:~:text=You%20can%20calculate%20password%20entropy,password%20entropy%2C%20measured%20in%20bits">Nord</a>
+  </li>
+  <li>
+    <a href="https://www.omnicalculator.com/other/password-entropy">Omni Calculator</a>
+  </li>
+</ul>
+<h3>Computing entropy</h3>
+Formula:
+<br />
+<math>Entropy = l times log<sub>2</sub>(n)</math>
+<ul class="list">       
+  <li>
+    Log2 is the logarithm base 2
+  </li>       
+  <li>
+    n: Number of characters to choose from
+  </li>      
+  <li>
+    l: Length of the password
+  </li>
+</ul>
+<br />
+In python it can be computed via
+<pre>
+<code>
+  import math
+  char_set_length =5
+  length = 4
+  entropy = length * math.log2(char_set_length)
+  print(entropy)
+</code>
+</pre>
+
+  </p>
+  
+  <br />
+  <a href="{{ url_for('info') }}">Back</a>
+
+{% endblock %}

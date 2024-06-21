@@ -1,0 +1,70 @@
+{% extends "index.html" %}
+{% block content %}
+  <h1>Task 2</h1>
+  Task 2 is about writing a function in python that produces a strong password.
+  In addition, though this will want to produce lots of random passwords, not just one really strong one.
+  By producing loads of passwords, then we can test they are random, and not just spitting out the same password over and over again (or in a repeated pattern).
+  <p>
+  Task one is split into several parts with increasing complexity.
+  Level 1 do not technically need to be automated, you could write one manually
+  via the links and processing it in the browser. However, level 4 and level 5
+  will need to be automated.
+  </p>
+  <ul>
+    <li>
+      Generate an 8 letter password
+      <br />
+      Python url: task2/level_one_a
+      <a href="{{ url_for('level1a') }}">Browser link</a>
+    </li>
+    <li>
+      Generate an 8 letter password with numbers.
+      <br />
+      Python url: task2/level_one_b
+      <a href="{{ url_for('level1b') }}">Browser link</a>
+    </li>
+    <li>
+      Generate an 8 letter password with numbers and capitals.
+      <br />
+      Python url: task2/level_one_c
+      <a href="{{ url_for('level1c') }}">Browser link</a>
+    </li>
+    <li>
+      Generate an 8 letter password with numbers, capitals and special characters.
+      <br />
+      Python url: task2/level_one_d
+      <a href="{{ url_for('level1d') }}">Browser link</a>
+    </li>
+    <li>
+      Generate an 8 letter password with numbers, capitals, special characters and no common prefixes.
+      <br />
+      Python url: task2/level_one_e
+      <a href="{{ url_for('level1e') }}">Browser link</a>
+    </li>
+    <li>
+      See if the above matches the minimum complexity expected.
+      <br />
+      Python url: task2/level_two
+      <a href="{{ url_for('level2') }}">See if the above matches the minimum complexity expected</a>
+    </li>
+    <li>
+      See if the above matches the estimated complexity expected.
+      <br />
+      Python url: task2/level_three
+      <a href="{{ url_for('level3') }}">Browser link</a>
+    </li>
+    <li>
+      See if 100 passwords pass the no repeat guarantee.
+      <br />
+      Python url: task2/level_four
+    </li>
+    <li>
+      See if 100 passwords meet the random order requirements.
+      <br />
+      Python url: task2/level_five
+    </li>
+  </ul>
+  <h3>Help</h3>
+  If you get stuck, click <a href="{{ url_for('task2_help') }}">here</a>.
+
+{% endblock %}

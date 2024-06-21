@@ -1,0 +1,10 @@
+{% extends "index.html" %}
+{% block content %}
+  <h2>Task 2</h2>
+  {{ info }}
+  Manually input your password to check.
+  <form method="POST">
+    <input name="password">
+    <input type="submit">
+</form>
+{% endblock %}

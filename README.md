@@ -4,61 +4,53 @@ How safe is your password?
 What is a strong password?
 
 This repository is a simple python repository to demonstrate how to:
-a. Generate a strong(ish) password in python
-b. Crack bad passwords using 2 obvious techniques.
+a. Crack bad passwords using 2 obvious techniques.
+b. Generate a strong(ish) password in python
 
-There are two main python exercises, and one more general activity to crack an actual application behind a password.
-As such, for this repository we assume python3 is installed and a bash cli is used.
-It can of course be amended to use windows powershell, online python compilers, etc to run it.
+## Setup
+This can be run in two different ways.
 
-Further details are outlined below.
+### Locally
 
-## Task 1
+#### Run the flask app
+```sh
+cd activity
+python3 -m venv flask-app
+source flask-app/bin/activate
+pip3 install -r requirements.txt
+flask run --host=0.0.0.0
+```
+
+#### The tasks
+Change the BASE_URL in `main.py`.
+Run,
+```sh
+python3 main.py
+```
+
+
+## Tasks
+Summary of tasks are below, but the flask app has far more information of you navigate to it.
+Locally, if run it will be on `localhost:5000` or on replit it will be the URL given.
+### Task 1
+#### Boyle's Task
+
+Boyle has a web page with all his secrets, he has a password as a three digit pin. Can you guess it?
+
+#### Terry's Task
+
+Terry has a web page with all his secrets, he has a password that uses four common phrases, plus two extra characters.
+
+## Task 2
 Create a python function to generate a password of 8 characters.
 It must have:
 * A lowercase letter
 * An uppercase letter
 * A number
-* A special character `£$%&:@;_-+=[]{}?`
+* A special character `£$?!_`
+* No examples of `Qwerty, Password, Pa$$w0rd, yoghurt, cagney, lacey`
+* No repeats within 100 tries
+* Range of characters, not all the letter `a1a2a3a4`
+* All characters are randomly and uniformly chosen.
 
 
-Write your [function](task1/task1.py).
-When ready to test it run
-```sh
-python3 test1.py
-```
-
-If you get stuck see the [help information for task1](docs/Task1Help.md)
-
-A solution, if you must, can be found [here](docs/SolutionTask1.py).
-It is not the only solution, or even the best. Just one that works and is fairly simple.
-
-## Task2
-The aim of this task is to use two techniques used to crack passwords, more information is online for example [from nord](https://nordvpn.com/blog/password-cracking/).
-
-There are two functions to [implement](task2/task2.py).
-The first is to crack a pin number, 4 characters long, pure brute force.
-The second is a targeted brute force attack using common prefix/suffix patterns.
-
-When ready run
-```sh
-python3 test2.py
-```
-
-If you get stuck see the [hints](docs/Task2Help.md).
-
-If you must, there is a [solution](docs/SolutionTask2.py).
-It is not the only solution, or even the best. Just one that works and is fairly simple.
-
-## Hints
-See the docs folder
-
-## Unit tests
-Run all unit tests with
-```sh
-python3 -m unittest
-```
-
-## Activity
-Navigate [here](activity/README.md) and follow the instructions.
-Unfortunately, you will have to host the flask app yourself currently.
