@@ -1,5 +1,5 @@
 import os, sys
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import Unauthorized
@@ -32,12 +32,14 @@ users = {
     "admin": generate_password_hash("admin"),
 }
 
+ADMIN = "admin"
 LEVEL_ONE = "level_one"
 LEVEL_TWO = "level_two"
 LEVEL_THREE = "level_three"
 LEVEL_FOUR = "level_four"
-ADMIN = "admin"
 LEVEL_FIVE = "level_five"
+TERRY = "terry"
+BOYLE = "boyle"
 
 
 @auth.get_user_roles
@@ -46,20 +48,24 @@ def get_user_roles(user):
     Warning: This is a hack - we may the user to a role
     We are not really using roles
     """
-    if user == LEVEL_FOUR or user == LEVEL_FIVE:
-        return ADMIN
     return user
 
 
 @app.errorhandler(Unauthorized)
 def handle_unauthorized(e):
-    return str(e.description), 401
+    return render_template("error.html", message=str(e.description)), 401
 
 
-def level_one(password):
+def level_one(
+    password, check_numbers=True, check_special_chars=True, check_uppercase=True, check_sub_set=True
+):
     try:
         is_valid_password(
-            password, check_numbers=True, check_special_chars=True, check_uppercase=True
+            password,
+            check_numbers=check_numbers,
+            check_special_chars=check_special_chars,
+            check_uppercase=check_uppercase,
+            check_sub_set=check_sub_set,
         )
     except InvalidPasswordException as e:
         raise Unauthorized(e)
@@ -89,28 +95,38 @@ def verify_password(username, password):
     """
     Password verifier
     """
-    if username in (LEVEL_FOUR, LEVEL_FIVE, ADMIN):
-        print(f"Username is {username}")
+    if username == ADMIN:
         return username
     if username not in request.full_path:
         expected_user = request.full_path.strip("?").split("/")[-1]
         raise Unauthorized(f"Must use username {expected_user} to access {request.full_path}")
-    if username == LEVEL_ONE:
-        level_one(password)
-    elif username == LEVEL_TWO:
-        level_one(password)
-        level_two(password)
-    elif username == LEVEL_THREE:
-        level_one(password)
-        level_two(password)
-        level_three(password)
     if username in users and check_password_hash(users.get(username), password):
         return username
 
 
 @app.route("/")
 def index():
-    return "Hello, all my secrets are stored in /secrets url, with username `boyle` and/or `terry`. Can you get to them?"
+    return render_template("home.html")
+
+
+@app.route("/info")
+def info():
+    return render_template("info.html")
+
+
+@app.route("/info/characters")
+def characters():
+    return render_template("characters.html")
+
+
+@app.route("/info/entropy")
+def entropy():
+    return render_template("entropy.html")
+
+
+@app.route("/info/randomness")
+def randomness():
+    return render_template("randomness.html")
 
 
 @app.route("/help")
@@ -118,45 +134,132 @@ def help():
     return "Try accessing `/secrets` via the browser.\nNext try using it via curl -u <username>:<password> localhost:5000/secrets"
 
 
-@app.route("/secrets")
-@auth.login_required
-def secrets():
-    if auth.current_user() == "boyle":
+@app.route("/task1/info")
+def task1():
+    return render_template("task1/info.html", root_url=request.root_path)
+
+
+@app.route("/task1/help_boyle")
+def task1_help_boyle():
+    return render_template("task1/help_boyle.html")
+
+
+@app.route("/task1/help_terry")
+def task1_help_terry():
+    return render_template("task1/help_terry.html")
+
+
+@app.route("/boyles_secret")
+@auth.login_required(role=[BOYLE, ADMIN])
+def secrets_boyle():
+    if auth.current_user() == BOYLE:
         return f"Well done for guessing the password for user `{auth.current_user()}` - too simple to guess {PIN}. The secret is `Desperate times call for Desperate Housewives`!"
-    elif auth.current_user() == "terry":
+    return "Sneaky you got the admin password."
+
+
+@app.route("/terrys_secret")
+@auth.login_required(role=[BOYLE, ADMIN])
+def secrets_terry():
+    if auth.current_user() == TERRY:
         return f"Well done for guessing the password for user `{auth.current_user()}` - too simple to guess {PASSWORD}. The secret is `Terry loves yoghurt`!"
-    elif auth.current_user() == "admin":
-        return "Sneaky you got the admin password."
-    return "Who is this?"
+    return "Sneaky you got the admin password."
 
 
-@app.route("/task1/level_one")
-@auth.login_required(role=LEVEL_ONE)
-def level1():
-    return "Well done for solving level 1!"
+@app.route("/task2/info")
+def task2():
+    return render_template("task2/info.html")
 
 
-@app.route("/task1/level_two")
-@auth.login_required(role=LEVEL_TWO)
+@app.route("/task2/level_one_a", methods=["GET", "POST"])
+def level1a():
+    if request.method == "GET":
+        return render_template("task2/input.html")
+
+    elif request.method == "POST":
+        password = request.form.get("password", [])
+        level_one(
+            password,
+            check_numbers=False,
+            check_special_chars=False,
+            check_uppercase=False,
+            check_sub_set=False,
+        )
+        return "Well done for solving level 1a!"
+
+
+@app.route("/task2/level_one_b", methods=["GET", "POST"])
+def level1b():
+    if request.method == "GET":
+        return render_template("task2/input.html")
+
+    elif request.method == "POST":
+        password = request.form.get("password", [])
+        level_one(password, check_special_chars=False, check_uppercase=False, check_sub_set=False)
+        return "Well done for solving level 1b!"
+
+
+@app.route("/task2/level_one_c", methods=["GET", "POST"])
+def level1c():
+    if request.method == "GET":
+        return render_template("task2/input.html")
+
+    elif request.method == "POST":
+        password = request.form.get("password", [])
+        level_one(password, check_special_chars=False, check_sub_set=False)
+        return "Well done for solving level 1b!"
+
+
+@app.route("/task2/level_one_d", methods=["GET", "POST"])
+def level1d():
+    if request.method == "GET":
+        return render_template("task2/input.html")
+
+    elif request.method == "POST":
+        password = request.form.get("password", [])
+        level_one(password, check_sub_set=False)
+        return "Well done for solving level 1c!"
+
+
+@app.route("/task2/level_one_e", methods=["GET", "POST"])
+def level1e():
+    if request.method == "GET":
+        return render_template("task2/input.html")
+
+    elif request.method == "POST":
+        password = request.form.get("password", [])
+        level_one(password)
+        return "Well done for solving level 1e!"
+
+
+@app.route("/task2/level_two")
 def level2():
+    password = request.form.get("password")
+    level_one(password)
+    level_two(password)
     return "Well done for solving level 2!"
 
 
-@app.route("/task1/level_three")
-@auth.login_required(role=LEVEL_THREE)
+@app.route("/task2/level_three")
 def level3():
+    password = request.form.get("password")
+    level_one(password)
+    level_two(password)
+    level_three(password)
     return "Well done for solving level3!"
 
 
-@app.route("/task1/level_four")
-@auth.login_required(role=LEVEL_FOUR)
+@app.route("/task2/level_four")
 def level4():
     passwords = request.params["passwords"]
+    for password in passwords:
+        level_one(password)
+        level_two(password)
+        level_three(password)
     level_four(passwords)
     return "Well done for solving level4!"
 
 
-@app.route("/task1/level_five")
+@app.route("/task2/level_five")
 def level5():
     """
     We should check distribution, but this is simple.
