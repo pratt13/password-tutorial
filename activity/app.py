@@ -173,7 +173,7 @@ def task2():
 @app.route("/task2/level_one_a", methods=["GET", "POST"])
 def level1a():
     if request.method == "GET":
-        return render_template("task2/input.html")
+        return render_template("task2/input.html", info="Level 1a - enter an 8 character password")
 
     elif request.method == "POST":
         password = request.form.get("password", [])
@@ -184,7 +184,7 @@ def level1a():
             check_uppercase=False,
             check_sub_set=False,
         )
-        return "Well done for solving level 1a!"
+        return render_template("success.html", message="Well done for solving level 1a!", next_task="level1b")
 
 
 @app.route("/task2/level_one_b", methods=["GET", "POST"])
