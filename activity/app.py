@@ -190,62 +190,74 @@ def level1a():
 @app.route("/task2/level_one_b", methods=["GET", "POST"])
 def level1b():
     if request.method == "GET":
-        return render_template("task2/input.html")
+        return render_template("task2/input.html", info="Level 1b - enter an 8 character password with a number")
 
     elif request.method == "POST":
         password = request.form.get("password", [])
         level_one(password, check_special_chars=False, check_uppercase=False, check_sub_set=False)
-        return "Well done for solving level 1b!"
+        return render_template("success.html", message="Well done for solving level 1b!", next_task="level1c")
+
 
 
 @app.route("/task2/level_one_c", methods=["GET", "POST"])
 def level1c():
     if request.method == "GET":
-        return render_template("task2/input.html")
+        return render_template("task2/input.html", info="Level 1c - enter an 8 character password with a number and capital letter")
 
     elif request.method == "POST":
         password = request.form.get("password", [])
         level_one(password, check_special_chars=False, check_sub_set=False)
-        return "Well done for solving level 1b!"
+        return render_template("success.html", message="Well done for solving level 1c!", next_task="level1d")
+
 
 
 @app.route("/task2/level_one_d", methods=["GET", "POST"])
 def level1d():
     if request.method == "GET":
-        return render_template("task2/input.html")
+        return render_template("task2/input.html", info="Level 1d - enter an 8 character password with a number, capital letter and special character.")
 
     elif request.method == "POST":
         password = request.form.get("password", [])
         level_one(password, check_sub_set=False)
-        return "Well done for solving level 1c!"
+        return render_template("success.html", message="Well done for solving level 1d!", next_task="level1e")
+
 
 
 @app.route("/task2/level_one_e", methods=["GET", "POST"])
 def level1e():
     if request.method == "GET":
-        return render_template("task2/input.html")
+        return render_template("task2/input.html", info="Level 1e - enter an 8 character password with a number, capital letter, special character and no common patterns.")
 
     elif request.method == "POST":
         password = request.form.get("password", [])
         level_one(password)
-        return "Well done for solving level 1e!"
+        return render_template("success.html", message="Well done for solving level 1e!", next_task="level2")
 
 
-@app.route("/task2/level_two")
+@app.route("/task2/level_two", methods=["GET", "POST"])
 def level2():
-    password = request.form.get("password")
-    level_one(password)
-    level_two(password)
-    return "Well done for solving level 2!"
+    if request.method == "GET":
+        return render_template("task2/input.html", info="Level 2 - enter a password that has an expected high complexity")
+
+    elif request.method == "POST":
+        password = request.form.get("password")
+        level_one(password)
+        level_two(password)
+        return render_template("success.html", message="Well done for solving level 2!", next_task="level3")
 
 
-@app.route("/task2/level_three")
+
+@app.route("/task2/level_three", methods=["GET", "POST"])
 def level3():
-    password = request.form.get("password")
-    level_one(password)
-    level_two(password)
-    level_three(password)
-    return "Well done for solving level3!"
+    if request.method == "GET":
+        return render_template("task3/input.html", info="Level 3 - enter a password that has a high complexity")
+    
+    elif request.method == "POST":
+        password = request.form.get("password")
+        level_one(password)
+        level_two(password)
+        level_three(password)
+        return render_template("success.html", message="Well done for solving level 3!", next_task="level4")
 
 
 @app.route("/task2/level_four")
@@ -256,7 +268,7 @@ def level4():
         level_two(password)
         level_three(password)
     level_four(passwords)
-    return "Well done for solving level4!"
+    return render_template("success.html", message="Well done for solving level 2!", next_task=None)
 
 
 @app.route("/task2/level_five")

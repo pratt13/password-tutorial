@@ -16,6 +16,7 @@ flask run --host=0.0.0.0
 ```sh
 curl -u boyle:<password> localhost:5000/secrets
 curl -u terry:<password> localhost:5000/secrets
+curl -X POST localhost:5000/task2/level_one_b  -o /dev/null -s -w "%{http_code}\n" --data '{"password":"2ss":}'
 ```
 
 ### Python

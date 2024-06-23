@@ -1,7 +1,36 @@
 {% extends "index.html" %}
 {% block content %}
   <h1>Task 2</h1>
-  Task one is split into .. parts.
+  Task one is split into several parts.
+  <ul>
+    <li>
+      <a href="{{ url_for('level1a') }}">Generate an 8 letter password</a>
+    </li>
+    <li>
+      <a href="{{ url_for('level1b') }}">Generate an 8 letter password with numbers</a>
+    </li>
+    <li>
+      <a href="{{ url_for('level1c') }}">Generate an 8 letter password with numbers and capitals</a>
+    </li>
+    <li>
+      <a href="{{ url_for('level1d') }}">Generate an 8 letter password with numbers, capitals and special characters</a>
+    </li>
+    <li>
+      <a href="{{ url_for('level1e') }}">Generate an 8 letter password with numbers, capitals, special characters and no common prefixes</a>
+    </li>
+    <li>
+      <a href="{{ url_for('level2') }}">See if the above matches the minimum complexity expected</a>
+    </li>
+    <li>
+      <a href="{{ url_for('level3') }}">See if the above matches the estimated complexity expected</a>
+    </li>
+    <li>
+      <a href="{{ url_for('level4') }}">See if 100 passwords pass the no repeat guarantee</a>
+    </li>
+    <li>
+      <a href="{{ url_for('level5') }}">See if 100 passwords meet the random order requirements</a>
+    </li>
+  </ul>
   <p>
     Create a python function to generate a password of 8 characters.
     It is split into 5 levels, with the first level split into the first.

@@ -1,5 +1,0 @@
-{% extends "index.html" %}
-{% block content %}
-  {{ message }}
-  {{ next_task}}
-{% endblock %}
