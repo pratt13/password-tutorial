@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, json
 from flask import Flask, jsonify, render_template, request
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,26 +10,26 @@ parent_directory = os.path.dirname(current_directory)
 sys.path.append(parent_directory)
 
 
+
 from task1.constants import MIN_ENTROPY
 from task1.helpers import (
     compute_exact_password_entropy,
     entropy_estimate,
     is_valid_password,
-    test_is_valid_password,
 )
 from task2.helpers import bad_password_generator, pin_number
-from common.exceptions import InvalidPasswordException, InvalidUserForPage
+from common.exceptions import InvalidPasswordException
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
 PIN = next(pin_number())
 PASSWORD = next(bad_password_generator())
-
+ADMIN_PASSWORD = "admin"
 users = {
     "boyle": generate_password_hash(PIN),
     "terry": generate_password_hash(PASSWORD),
-    "admin": generate_password_hash("admin"),
+    "admin": generate_password_hash(ADMIN_PASSWORD),
 }
 
 ADMIN = "admin"
@@ -53,7 +53,18 @@ def get_user_roles(user):
 
 @app.errorhandler(Unauthorized)
 def handle_unauthorized(e):
-    return render_template("error.html", message=str(e.description)), 401
+    """
+    Do not return a HTML template for errors to allow processing
+    """
+    response = e.get_response()
+    response.data = json.dumps({
+        "code": e.code,
+        "name": e.name,
+        "description": e.description,
+        "failed_url": request.url,
+    })
+    response.content_type = "application/json"
+    return response
 
 
 def level_one(
@@ -102,6 +113,11 @@ def verify_password(username, password):
         raise Unauthorized(f"Must use username {expected_user} to access {request.full_path}")
     if username in users and check_password_hash(users.get(username), password):
         return username
+    # In the browser we want a login
+    # From python we want it passed via the request
+    # If we wanted to handle this with curl we would do the negative
+    if "python-requests" in request.headers.get("User-agent"):
+        raise Unauthorized(f"Invalid credentials to access {request.full_path}")
 
 
 @app.route("/")
@@ -128,12 +144,6 @@ def entropy():
 def randomness():
     return render_template("randomness.html")
 
-
-@app.route("/help")
-def help():
-    return "Try accessing `/secrets` via the browser.\nNext try using it via curl -u <username>:<password> localhost:5000/secrets"
-
-
 @app.route("/task1/info")
 def task1():
     return render_template("task1/info.html", root_url=request.root_path)
@@ -149,7 +159,7 @@ def task1_help_terry():
     return render_template("task1/help_terry.html")
 
 
-@app.route("/boyles_secret")
+@app.route("/task1/boyles_secret")
 @auth.login_required(role=[BOYLE, ADMIN])
 def secrets_boyle():
     if auth.current_user() == BOYLE:
@@ -157,7 +167,7 @@ def secrets_boyle():
     return "Sneaky you got the admin password."
 
 
-@app.route("/terrys_secret")
+@app.route("/task1/terrys_secret")
 @auth.login_required(role=[BOYLE, ADMIN])
 def secrets_terry():
     if auth.current_user() == TERRY:
@@ -168,6 +178,15 @@ def secrets_terry():
 @app.route("/task2/info")
 def task2():
     return render_template("task2/info.html")
+
+
+@app.route("/task2/help")
+def task2_help():
+    return render_template("task2/help.html")
+
+@app.route("/task2/help2")
+def task2_help2():
+    return render_template("task2/help2.html")
 
 
 @app.route("/task2/level_one_a", methods=["GET", "POST"])
@@ -250,7 +269,7 @@ def level2():
 @app.route("/task2/level_three", methods=["GET", "POST"])
 def level3():
     if request.method == "GET":
-        return render_template("task3/input.html", info="Level 3 - enter a password that has a high complexity")
+        return render_template("task2/input.html", info="Level 3 - enter a password that has a high complexity")
     
     elif request.method == "POST":
         password = request.form.get("password")
