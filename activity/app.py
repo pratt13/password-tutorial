@@ -1,5 +1,5 @@
 import os, sys, json
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, render_template, request
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import Unauthorized
@@ -66,39 +66,42 @@ def handle_unauthorized(e):
     response.content_type = "application/json"
     return response
 
+@app.errorhandler(InvalidPasswordException)
+def handle_unauthorized(e):
+    """
+    Do not return a HTML template for errors to allow processing
+    """
+    return str(e), 400
+
 
 def level_one(
     password, check_numbers=True, check_special_chars=True, check_uppercase=True, check_sub_set=True
 ):
-    try:
-        is_valid_password(
-            password,
-            check_numbers=check_numbers,
-            check_special_chars=check_special_chars,
-            check_uppercase=check_uppercase,
-            check_sub_set=check_sub_set,
-        )
-    except InvalidPasswordException as e:
-        raise Unauthorized(e)
-
+    is_valid_password(
+        password,
+        check_numbers=check_numbers,
+        check_special_chars=check_special_chars,
+        check_uppercase=check_uppercase,
+        check_sub_set=check_sub_set,
+    )
 
 def level_two(password):
     entropy_value = entropy_estimate(password)
-    if entropy_value <= MIN_ENTROPY(password):
-        raise Unauthorized(f"Entropy {entropy_value} is less than the minimum {MIN_ENTROPY}")
+    if entropy_value <= MIN_ENTROPY:
+        raise InvalidPasswordException(f"Entropy {entropy_value} is less than the minimum {MIN_ENTROPY}")
 
 
 def level_three(password):
     entropy_value = compute_exact_password_entropy(password)
-    if entropy_value <= MIN_ENTROPY(password):
-        raise Unauthorized(f"Entropy {entropy_value} is less than the minimum {MIN_ENTROPY}")
+    if entropy_value <= MIN_ENTROPY:
+        raise InvalidPasswordException(f"Entropy {entropy_value} is less than the minimum {MIN_ENTROPY}")
 
 
 def level_four(passwords):
     if len(passwords) < 100:
-        return "Must pass at least 100 passwords to test", 401
-    if len(passwords) != set(passwords):
-        return "Cannot include repeats in the password creation", 401
+        raise InvalidPasswordException("Must pass at least 100 passwords to test")
+    if len(passwords) != len(set(passwords)):
+        raise InvalidPasswordException("Cannot include repeats in the password creation")
 
 
 @auth.verify_password
@@ -188,6 +191,11 @@ def task2_help():
 def task2_help2():
     return render_template("task2/help2.html")
 
+def _return_success(headers, message, next_task):
+    if "python-requests" in headers.get("User-agent"):
+        return message, 200
+    return render_template("success.html", message=message, next_task=next_task)
+
 
 @app.route("/task2/level_one_a", methods=["GET", "POST"])
 def level1a():
@@ -203,8 +211,7 @@ def level1a():
             check_uppercase=False,
             check_sub_set=False,
         )
-        return render_template("success.html", message="Well done for solving level 1a!", next_task="level1b")
-
+        return _return_success(request.headers, message="Well done for solving level 1a!", next_task="level1b")
 
 @app.route("/task2/level_one_b", methods=["GET", "POST"])
 def level1b():
@@ -214,7 +221,7 @@ def level1b():
     elif request.method == "POST":
         password = request.form.get("password", [])
         level_one(password, check_special_chars=False, check_uppercase=False, check_sub_set=False)
-        return render_template("success.html", message="Well done for solving level 1b!", next_task="level1c")
+        return _return_success(request.headers, message="Well done for solving level 1b!", next_task="level1c")
 
 
 
@@ -226,7 +233,7 @@ def level1c():
     elif request.method == "POST":
         password = request.form.get("password", [])
         level_one(password, check_special_chars=False, check_sub_set=False)
-        return render_template("success.html", message="Well done for solving level 1c!", next_task="level1d")
+        return _return_success(request.headers, message="Well done for solving level 1c!", next_task="level1d")
 
 
 
@@ -237,8 +244,9 @@ def level1d():
 
     elif request.method == "POST":
         password = request.form.get("password", [])
-        level_one(password, check_sub_set=False)
-        return render_template("success.html", message="Well done for solving level 1d!", next_task="level1e")
+        level_one(password, check_sub_set=False)        
+        return _return_success(request.headers, message="Well done for solving level 1d!", next_task="level1e")
+
 
 
 
@@ -249,8 +257,8 @@ def level1e():
 
     elif request.method == "POST":
         password = request.form.get("password", [])
-        level_one(password)
-        return render_template("success.html", message="Well done for solving level 1e!", next_task="level2")
+        level_one(password)        
+        return _return_success(request.headers, message="Well done for solving level 1e!", next_task="level2")
 
 
 @app.route("/task2/level_two", methods=["GET", "POST"])
@@ -262,7 +270,7 @@ def level2():
         password = request.form.get("password")
         level_one(password)
         level_two(password)
-        return render_template("success.html", message="Well done for solving level 2!", next_task="level3")
+        return _return_success(request.headers, message="Well done for solving level 2!", next_task="level3")
 
 
 
@@ -276,21 +284,21 @@ def level3():
         level_one(password)
         level_two(password)
         level_three(password)
-        return render_template("success.html", message="Well done for solving level 3!", next_task="level4")
+        return _return_success(request.headers, message="Well done for solving level 3!", next_task="level4")
 
 
-@app.route("/task2/level_four")
+@app.route("/task2/level_four", methods=["POST"])
 def level4():
-    passwords = request.params["passwords"]
+    passwords = request.form.getlist("passwords")
     for password in passwords:
         level_one(password)
         level_two(password)
         level_three(password)
     level_four(passwords)
-    return render_template("success.html", message="Well done for solving level 2!", next_task=None)
+    return _return_success(request.headers, message="Well done for solving level 4!", next_task="level5")
 
 
-@app.route("/task2/level_five")
+@app.route("/task2/level_five", methods=["POST"])
 def level5():
     """
     We should check distribution, but this is simple.
@@ -299,7 +307,7 @@ def level5():
      position, for example, the 6th element is a combination of all the
       characters that appear in the 6th position. is in the
     """
-    passwords = request.args.getlist("passwords")
+    passwords = request.form.getlist("passwords")
 
     # Check all passwords are valid
     for password in passwords:
@@ -318,9 +326,10 @@ def level5():
     ]
     for resorted_password in resorted_passwords:
         if (all_chars_present & set(resorted_password)) != 0:
-            return Unauthorized("Some characters don't appear in all positions"), 401
+            return InvalidPasswordException("Some characters don't appear in all positions"), 401
 
-    return "Well done for solving level5!"
+    return _return_success(request.headers, message="Well done for solving level 5!", next_task=None)
+
 
 
 if __name__ == "__main__":

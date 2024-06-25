@@ -47,7 +47,8 @@ def is_valid_password(
         raise InvalidPasswordException(
             f"Password must contain at least one special character from {SPECIAL_CHARS}"
         )
-    if check_sub_set and not COMMON_SUB_STRINGS in pwd.lowercase():
+    if check_sub_set and any(sub_string  in pwd for sub_string in COMMON_SUB_STRINGS):
+
         raise InvalidPasswordException(
             f"Password must not contain any of these common phrases {COMMON_SUB_STRINGS}"
         )
