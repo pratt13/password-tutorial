@@ -55,6 +55,6 @@ So the combinations are
 
 
 ## Conclusion
-* Large char set
-* Long password
-* Random patterns
+* Large character set is required
+* Long(ish) password
+* Randomness

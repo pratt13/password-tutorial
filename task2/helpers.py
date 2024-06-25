@@ -21,7 +21,7 @@ def pin_number():
     Return a generator for all possible pin numbers, infinite cycle.
     This can be easily brute forced.
     """
-    pin_numbers = ["".join(pin) for pin in itertools.product(NUMBERS, repeat=4)]
+    pin_numbers = ["".join(pin) for pin in itertools.product(NUMBERS, repeat=3)]
     random.shuffle(pin_numbers)
     return itertools.cycle(pin_numbers)
 

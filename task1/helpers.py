@@ -2,6 +2,7 @@ import itertools, time, math
 
 from common.exceptions import InvalidPasswordException, TestFailureException
 from task1.constants import (
+    COMMON_SUB_STRINGS,
     MIN_LENGTH,
     MAX_LENGTH,
     ALPHABET_LOWERCASE,
@@ -30,6 +31,7 @@ def is_valid_password(
     check_uppercase=False,
     check_numbers=False,
     check_special_chars=False,
+    check_sub_set=False
 ):
     if len(pwd) < min_length:
         raise InvalidPasswordException(f"Password must be at least {min_length} characters long")
@@ -44,6 +46,10 @@ def is_valid_password(
     if check_special_chars and not any(s in pwd for s in SPECIAL_CHARS):
         raise InvalidPasswordException(
             f"Password must contain at least one special character from {SPECIAL_CHARS}"
+        )
+    if check_sub_set and not COMMON_SUB_STRINGS in pwd.lowercase():
+        raise InvalidPasswordException(
+            f"Password must not contain any of these common phrases {COMMON_SUB_STRINGS}"
         )
     if any(s not in FULL_CHAR_SET for s in pwd):
         raise InvalidPasswordException(f"Password contains character not in {FULL_CHAR_SET}")
@@ -196,6 +202,7 @@ def test_char_distribution(pwd_generator):
     resorted_passwords = [
         "".join([passwords[i][j] for i in range(num_tries)]) for j in range(len(passwords[0]))
     ]
+    print(resorted_passwords)
     result = False
     try:
         if all(

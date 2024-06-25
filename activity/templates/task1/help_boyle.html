@@ -1,41 +1,37 @@
 {% extends "index.html" %}
 {% block content %}
   <h3>Task 1: Help Boyle</h3>
-  The aim is to write a function that returns a list of all possible four pin combinations.
-  So the first thing we could do is to use a for loop.
-  An example below, creates an empty list
-  When writing a function to guess the possible four digit pin number, a good starting point is
-  thinking about what digit each of those 
+  The aim is to write a function that returns a list of all possible 3 pin combinations.
+  So the first thing we could do is to use a for loop per character.
+  Then for each guess you could add it to a list using append.
+  
   <pre>
     <code>
-      def pin_number_solver():
-        """
-        Return a generator/list of possible combinations of two digit numbers
-        """
-        guesses = []
-        for number_1 in [0,1,2,3,4,5,6,7,8,9]:
-          for number_2 in [0,1,2,3,4,5,6,7,8,9]:
-            guess = str(number_1) + str(number_2)
-            # Add the guess to the possible guests
-            guesses.append(guess)
-        return guesses
+      my_list = []
+      for letter2 in ["a", "b", "c"]:
+        for letter1 in ["1", "2", "3"]:
+          my_list.append(letter1+letter2)
+      print(my_list)
     </code>
   </pre>
-
-  The above is a good starting point.
-  There are improvements, for example have a look at
   <ul>
     <li>
-      python f-strings
+      append to list
     </li>
     <li>
-      re-using variables [0,1,2,3,4,5,6,7,8,9]
+      for loops
+    </li>
+    <li>
+      python f-strings
     </li>
     <li>
       The 'range' function in python
     </li>
     <li>
       (Advanced) list comprehension
+    </li>
+    <li>
+      (Advanced) itertools library
     </li>
   </ul>
 

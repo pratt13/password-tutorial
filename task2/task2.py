@@ -2,7 +2,9 @@ def pin_number_solver():
     """
     Return a generator/list of possible solutions
     """
-    raise NotImplementedError
+    import itertools
+    NUMBERS = "".join((str(n) for n in range(0, 10)))
+    return ["".join(pin) for pin in itertools.product(NUMBERS, repeat=3)]
 
 
 def bad_password_solver():
