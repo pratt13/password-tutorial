@@ -1,3 +1,4 @@
+from collections import Counter
 import os, sys, json
 from flask import Flask, render_template, request
 from flask_httpauth import HTTPBasicAuth
@@ -301,11 +302,12 @@ def level4():
 @app.route("/task2/level_five", methods=["POST"])
 def level5():
     """
-    We should check distribution, but this is simple.
-    Every type of char in the repeats must appear in a position.
-    Reshape the array, so each element in the array represents the
-     position, for example, the 6th element is a combination of all the
-      characters that appear in the 6th position. is in the
+    If we were to check every type of char in the repeats must appear in a position.
+    This would be num_characters**num_positions. (A lot to test)
+    Could do a chi score test, but instead we do a dirty trick.
+    No letter appears more frequent that 5 * mean. 
+    Mean = number of events / number of possible choices
+    Mean = len(passwords) * length of password / 40
     """
     passwords = request.form.getlist("passwords")
 
@@ -318,15 +320,10 @@ def level5():
     level_four(passwords)
 
     # Now level 5
-    all_chars_present = set([char for password in passwords for char in password])
-    num_tries = len(passwords)
-
-    resorted_passwords = [
-        "".join([passwords[i][j] for i in range(num_tries)]) for j in range(len(passwords[0]))
-    ]
-    for resorted_password in resorted_passwords:
-        if (all_chars_present & set(resorted_password)) != 0:
-            return InvalidPasswordException("Some characters don't appear in all positions"), 401
+    mean = len(passwords) * len(passwords[0]) / 40
+    char_counter = Counter([char for password in passwords for char in password])
+    if max(char_counter.values()) > mean * 5:
+        raise InvalidPasswordException("Some characters appear unexpectedly often - is it really  at random")
 
     return _return_success(request.headers, message="Well done for solving level 5!", next_task=None)
 
