@@ -1,9 +1,0 @@
-{% extends "index.html" %}
-{% block content %}
-  {{ message }}
-  {% if next_task is none %}
-        <h3>Congratulations no more tasks</h3>
-  {% else %}
-    <a href="{{ url_for(next_task) }}">Next task</a>
-  {% endif %}
-{% endblock %}

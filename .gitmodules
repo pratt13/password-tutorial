@@ -1,0 +1,7 @@
+[submodule "password-flask-app"]
+	path = password-flask-app
+	url = https://github.com/pratt13/password-flask-app
+
+[submodule "password-exercise-helper"]
+	path = password-exercise-helper
+	url = https://github.com/pratt13/password-exercise-helper
